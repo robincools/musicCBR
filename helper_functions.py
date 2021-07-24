@@ -1,0 +1,205 @@
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+import os
+from lyrics_extractor import SongLyrics
+from nltk import RegexpTokenizer
+from nltk.corpus import stopwords
+from gensim.models.doc2vec import TaggedDocument
+
+def authenticate_spotify_api():
+  """
+  Function to authenticate the Spotify API.
+  """
+
+  # Get Spotify API keys
+  client_id = os.environ.get("SPOTIPY_CLIENT_SECRET")
+  client_secret = os.environ.get("SPOTIPY_CLIENT_SECRET")
+  
+  # Create and authenticate Spotify API client
+  return spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
+
+def authenticate_extract_lyrics():
+  """
+  Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.
+  """
+
+  # Get Google Cloud Service API keys
+  GCS_API_KEY = os.environ.get('GCS_API_KEY')
+  GCS_ENGINE_ID = os.environ.get('GCS_ENGINE_ID')
+
+  # Initialize lyrics_extractor class
+  return SongLyrics(GCS_API_KEY, GCS_ENGINE_ID)
+
+def search_multiple_tracks(search_query):
+  """
+  Function to return the top 10 Spotify track id's, track name and artist given a search querry.
+
+  Parameters
+  ----------
+  search_query : str
+    search query / search term
+  """
+
+  sp = authenticate_spotify_api()
+  
+  # List to store the track ids
+  track_ids = []
+  # List to store the track names and artists
+  tracks = []
+
+  #Search for 10 results in the Spotify API given a search querry
+  results = sp.search(q = search_query ,limit=10)
+  results = results['tracks']['items']
+
+  # Extract the track id's, names and artists for all the search results
+  for i in range(len(results)):
+
+      # Get track id, artist and name
+      track_id = results[i]['id']
+      artist = results[i]['artists'][0]['name']
+      track_name = results[i]['name']
+
+      # Get a string with the artist and track name
+      track = artist + ' - ' + track_name
+
+      # Append the track id's and track name/artist to the list
+      track_ids.append(track_id)
+      tracks.append(track)
+
+  # Make a dictionary of the track id and track name/artist list.
+  return dict(zip(tracks,track_ids))
+
+def get_img_urls(track_ids):
+  """
+  Function to get the album image urls from tracks with the Spotify API, given a list of track id's.
+
+  Parameters
+  ----------
+  track_ids : list
+    Spotify track id's
+  """
+  sp = authenticate_spotify_api()
+  
+  # Get a list with track information using a list of track id's
+  tracks = sp.tracks(track_ids)
+
+  # Initialize list to append image urls to
+  img_urls = []
+
+  for i in range(len(tracks['tracks'])):
+    images = tracks['tracks'][i]['album']['images']
+
+    seq = [x['height'] for x in images]
+    img = next(item for item in images if item['height'] == min(seq))
+    img_url = img['url']
+
+    img_urls.append(img_url)
+
+  return img_urls
+
+def radar_chart(song, dataset):
+  """
+  Function to make a radar chart of the audio features of a song.
+
+  Parameters
+  ----------
+  song : DataFrame
+    Pandas dataframe with the audio features of a song
+
+  dataset : DataFrame
+    Pandas dataframe with the database of songs we use to make recommendations. Used for normalizing the audio features (tempo and loudness) of the song.
+  """
+  # Reset the index of the song dataframe
+  song = song.reset_index(drop = True)
+
+  # Only keep the audio features of the dataframes
+  song = song[['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence','tempo', 'loudness']]
+  dataset = dataset[['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence','tempo', 'loudness']]
+
+  # Normalize the audio features of the song using the audio features of the database.
+  song = (song - dataset.min())/(dataset.max()- dataset.min())
+
+  song = song.rename({'tempo':'tempo normalized', 'loudness': 'loudness normalized'},axis=1)
+  song = song.T
+  song = song.reset_index()
+
+  # Create radar chart
+  fig = px.line_polar(song, r = 0, theta = 'index', line_close = True)
+  fig.update_traces(fill = 'toself')
+
+  return fig
+
+@st.cache(allow_output_mutation=True)
+def load_data():
+  """
+  Create dataframes for the song data and the id lookup table from csv files
+  """
+  
+  # Load lookup table
+  path = 'data/id_lookup.csv.zip'
+  lookup_table = pd.read_csv(path, index_col=0)
+
+  # Load song data
+  path2 = 'data/data_lyrics_features.csv.zip'
+  data = pd.read_csv(path2, index_col=0)
+
+  return data, lookup_table
+
+def clean_lyrics(data):
+  """
+  Function to clean the lyrics. It lowercases the lyrics, tokenizes it and removes all stopwords.
+
+  Parameters
+  ---------
+  data : list
+    list of strings of song lyrics
+  """
+  
+  #Initialize list to store clean data, tokenizer and the set of stopwords
+  cleaned_data = []
+  tokenizer = RegexpTokenizer(r'\w+')
+  stopword_set = set(stopwords.words('english'))
+
+  # Clean data for all the lyrics in the list
+  for doc in data:
+    # Get lowercase of lyrics string
+    new_str = doc.lower()
+
+    # Tokenize lyrics strings
+    dlist = tokenizer.tokenize(new_str)
+
+    # Remove stopwords
+    dlist = list(set(dlist).difference(stopword_set))
+
+    # Append cleaned lyrics to list
+    cleaned_data.append(dlist)
+
+  return cleaned_data
+
+def tag_lyrics(data):
+  """
+  Function to tag every document. Needed as input for the Doc2Vec network.
+
+  Parameters
+  ----------
+
+  data : list
+    list of cleaned lyrics (output of the clean_lyrics function)
+  """
+
+  # Initialize list to store tagged lyrics
+  tagged_documents = []
+
+  # Tag lyrics for all the lyrics in the list
+  for i, doc in enumerate(data):
+
+    # Tag lyrics
+    tagged = TaggedDocument(doc, [i])
+
+    # Append tagged lyrics to
+    tagged_documents.append(tagged)
+
+  return tagged_documents
