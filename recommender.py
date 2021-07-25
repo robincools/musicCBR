@@ -42,7 +42,7 @@ class recommender:
     Combine recommender_features and recommender_lyrics and get top recommendations.
   """
   
-  def __init__(self, track_id, database, lookup_table, do_kmeans,  n_songs , alpha , n_clusters = 10):
+  def __init__(self, track_id, database, lookup_table,  n_songs , alpha , n_clusters = 10):
     """
     Parameters
     ----------
@@ -52,8 +52,6 @@ class recommender:
       Pandas dataframe with spotify ID's, audio features and lyrics of the tracks to make recommendations with.
     lookup_table : DataFrame
       Pandas dataframe with Spotify ID's and track names and artists.
-    do_kmeans : boolean
-      True if we want to do kmeans before recommendation.
     n_songs : int
       Number of songs to recommend.
     alpha: float
@@ -64,7 +62,6 @@ class recommender:
     self.n_songs = n_songs
     self.alpha = alpha
     self.n_clusters = n_clusters
-    self.do_kmeans = do_kmeans
     self.lookup_table = lookup_table
     self.sp = authenticate_spotify_api()
     self.extract_lyrics = authenticate_extract_lyrics()
@@ -113,34 +110,6 @@ class recommender:
 
     # return dataframe of the song data dictionary
     return pd.DataFrame(song_data)
-    
-  def kmeans_cluster(self, song):
-    """
-    Do kmeans clustering on data. At this moment not used because not possible to use together with Doc2Vec
-    """
-
-    if song['id'].values not in self.database['id'].values:
-      self.database = song.append(self.database) 
-      i = 0
-    else:
-      i = self.database.index[(self.database['id'] == song['id'].values[0])][0]
-
-    data_nolyrics = self.database[['danceability','energy', 'loudness','speechiness','acousticness','instrumentalness','liveness','valence','tempo']]
-    data_nolyrics = (data_nolyrics - data_nolyrics.min())/(data_nolyrics.max() - data_nolyrics.min())
-
-    kmeans = MiniBatchKMeans(self.n_clusters,batch_size = 200)  
-    song_cluster_labels = kmeans.fit_predict(data_nolyrics)
-
-    self.database['cluster_label'] = song_cluster_labels
-
-    if i == 0:
-      self.database.reset_index(inplace = True, drop = True)
-
-    database_kmeans = self.database[self.database['cluster_label'] == self.database['cluster_label'][i]]
-    database_kmeans = database_kmeans.drop('cluster_label', axis=1)
-    database_kmeans.reset_index(inplace = True, drop = True)
-
-    return database_kmeans
 
   def recommender_features(self, song, database):
 
@@ -227,15 +196,9 @@ class recommender:
     # Get song dataframe to recommend on
     song = recommender.find_song(self)
 
-    # 
-    if self.do_kmeans:
-      database = recommender.kmeans_cluster(self, song)
-    else:
-      database = self.database
-
     # get similarity scores for the features and lyrics
-    features_sim = recommender.recommender_features(self, song, database)
-    lyrics_sim = recommender.recommender_lyrics(self, song, database)
+    features_sim = recommender.recommender_features(self, song, self.database)
+    lyrics_sim = recommender.recommender_lyrics(self, song, self.database)
 
     # Drop the song we want to make recommendations on from the database
     features_sim = features_sim.drop(features_sim.index[features_sim['id'] == song['id'].values[0]])

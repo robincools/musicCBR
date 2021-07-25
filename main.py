@@ -31,7 +31,7 @@ def main():  # sourcery skip: extract-method
     cols = st.beta_columns(2)
     
     # Number input for the number of songs that need to be recommended
-    n_songs = int(cols[0].number_input('Number of recommendations',value=20))
+    n_songs = int(cols[0].number_input('Number of recommendations (max 50)',value=20, max_value=50, min_value=1))
     
     # Slider to determine the percentage that the lyrics recommender needs to be part of the total recommendation
     alpha = cols[1].slider(label = 'How much do the lyrics need to part of the recommendation? (in percentage)', min_value=0, max_value=100, value = 10)
@@ -40,7 +40,6 @@ def main():  # sourcery skip: extract-method
     recommend = recommender(track_id = track_id, 
                             database = data, 
                             lookup_table = lookup_table, 
-                            do_kmeans = False,
                             n_songs = n_songs,
                             alpha = alpha/100)
 
