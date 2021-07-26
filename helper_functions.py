@@ -9,27 +9,42 @@ from nltk import RegexpTokenizer
 from nltk.corpus import stopwords
 from gensim.models.doc2vec import TaggedDocument
 
-def authenticate_spotify_api():
+def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI):
   """
   Function to authenticate the Spotify API.
+  
+  Parameters
+  ---------
+  SPOTIPY_CLIENT_ID : str
+    public Spotify API key
+  SPOTIPY_CLIENT_SECRET : str
+    private Spotify API key
+  SPOTIPY_REDIRECT_URI: link
+    Link to which Spotify API is set in Spotify Dashboard
   """
   scope = "playlist-modify-public"
   
-  return spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+  return spotipy.Spotify(auth_manager=SpotifyOAuth(client_id = SPOTIPY_CLIENT_ID, 
+                                                   client_secret = SPOTIPY_CLIENT_SECRET, 
+                                                   redirect_uri = SPOTIPY_REDIRECT_URI, 
+                                                   scope=scope))
 
-def authenticate_extract_lyrics():
+def authenticate_extract_lyrics(GCS_API_KEY, GCS_ENGINE_ID):
   """
   Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.
+  
+  Parameters
+  ---------
+  GCS_API_KEY : str
+    Google cloud service API key
+  GCS_ENGINE_ID : str
+    Google custom search engine ID
   """
   
-  # Get Google Cloud Service API keys
-  GCS_API_KEY = os.environ.get('GCS_API_KEY')
-  GCS_ENGINE_ID = os.environ.get('GCS_ENGINE_ID')
-
   # Initialize lyrics_extractor class
   return SongLyrics(GCS_API_KEY, GCS_ENGINE_ID)
 
-def search_multiple_tracks(search_query):
+def search_multiple_tracks(search_query, sp):
   """
   Function to return the top 10 Spotify track id's, track name and artist given a search querry.
 
@@ -37,9 +52,9 @@ def search_multiple_tracks(search_query):
   ----------
   search_query : str
     search query / search term
+  sp : object
+    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
   """
-
-  sp = authenticate_spotify_api()
   
   # List to store the track ids
   track_ids = []
@@ -68,7 +83,7 @@ def search_multiple_tracks(search_query):
   # Make a dictionary of the track id and track name/artist list.
   return dict(zip(tracks,track_ids))
 
-def get_img_urls(track_ids):
+def get_img_urls(track_ids, sp):
   """
   Function to get the album image urls from tracks with the Spotify API, given a list of track id's.
 
@@ -76,8 +91,9 @@ def get_img_urls(track_ids):
   ----------
   track_ids : list
     Spotify track id's
+  sp : object
+    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
   """
-  sp = authenticate_spotify_api()
   
   # Get a list with track information using a list of track id's
   tracks = sp.tracks(track_ids)

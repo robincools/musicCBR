@@ -3,7 +3,7 @@ import numpy as np
 from collections import defaultdict
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans, MiniBatchKMeans
-from helper_functions import get_img_urls, clean_lyrics, authenticate_extract_lyrics, authenticate_spotify_api
+from helper_functions import get_img_urls, clean_lyrics, authenticate_extract_lyrics
 import streamlit as st
 from gensim.models.doc2vec import Doc2Vec
 
@@ -40,7 +40,7 @@ class recommender:
     Combine recommender_features and recommender_lyrics and get top recommendations.
   """
   
-  def __init__(self, track_id, database, lookup_table,  n_songs , alpha, sp):
+  def __init__(self, track_id, database, lookup_table,  n_songs , alpha, sp, extract_lyrics):
     """
     Parameters
     ----------
@@ -61,7 +61,7 @@ class recommender:
     self.alpha = alpha
     self.lookup_table = lookup_table
     self.sp = sp
-    self.extract_lyrics = authenticate_extract_lyrics()
+    self.extract_lyrics = extract_lyrics
 
     
   @st.cache(allow_output_mutation=True)
@@ -219,7 +219,7 @@ class recommender:
 
     # Add album image urls to dataframe
     recommendation_ids = list(recommendation['id'])
-    img_urls = get_img_urls(recommendation_ids)
+    img_urls = get_img_urls(recommendation_ids, self.sp)
     recommendation['img_url'] = img_urls
 
     # Add play on Spotify link to dataframe

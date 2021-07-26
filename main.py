@@ -1,14 +1,19 @@
 import streamlit as st
-from helper_functions import search_multiple_tracks, radar_chart, load_data, authenticate_spotify_api, create_playlist
+from helper_functions import search_multiple_tracks, radar_chart, load_data, authenticate_spotify_api, create_playlist, authenticate_extract_lyrics
 from recommender import recommender
 
-def main():  # sourcery skip: extract-method
+def main():
     
     # Set the streamlit page configuration
     st.set_page_config(layout="wide", initial_sidebar_state='collapsed')
     
     #Authenticate Spotify API
-    sp = authenticate_spotify_api()
+    sp = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
+                                  SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"],
+                                  SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"])
+    
+    extract_lyrics = authenticate_extract_lyrics(GCS_API_KEY = st.secrets["GCS_API_KEY"],
+                                                 GCS_ENGINE_ID = st.secrets["GCS_ENGINE_ID"])
 
     # Load the song data and id lookup_table
     data, lookup_table = load_data()
@@ -24,7 +29,7 @@ def main():  # sourcery skip: extract-method
         st.write('**Please enter a search term.**')
     else:
         # Search the track information
-        track_dict = search_multiple_tracks(search_input)
+        track_dict = search_multiple_tracks(search_input, sp)
         
         # Check if search query gives search results, otherwise ask for different search query.
         if not track_dict:
@@ -51,7 +56,8 @@ def main():  # sourcery skip: extract-method
                                     lookup_table = lookup_table, 
                                     n_songs = n_songs,
                                     alpha = alpha/100,
-                                    sp = sp)
+                                    sp = sp,
+                                    extract_lyrics = extract_lyrics)
 
             # Call content_based_recommender method
             song, recommendations = recommend.content_based_recommender()
