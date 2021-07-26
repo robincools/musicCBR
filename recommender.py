@@ -1,12 +1,10 @@
 import pandas as pd
 import numpy as np
-import spotipy
 from collections import defaultdict
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import KMeans, MiniBatchKMeans
 from helper_functions import get_img_urls, clean_lyrics, authenticate_extract_lyrics, authenticate_spotify_api
 import streamlit as st
-from lyrics_extractor import SongLyrics
 from gensim.models.doc2vec import Doc2Vec
 
 class recommender:
@@ -42,7 +40,7 @@ class recommender:
     Combine recommender_features and recommender_lyrics and get top recommendations.
   """
   
-  def __init__(self, track_id, database, lookup_table,  n_songs , alpha , n_clusters = 10):
+  def __init__(self, track_id, database, lookup_table,  n_songs , alpha, sp):
     """
     Parameters
     ----------
@@ -61,9 +59,8 @@ class recommender:
     self.database = database
     self.n_songs = n_songs
     self.alpha = alpha
-    self.n_clusters = n_clusters
     self.lookup_table = lookup_table
-    self.sp = authenticate_spotify_api()
+    self.sp = sp
     self.extract_lyrics = authenticate_extract_lyrics()
 
     
@@ -133,8 +130,9 @@ class recommender:
       i = database.index[(database['id'] == song['id'].values[0])][0]
 
     # Only keep audio features of database and normalize them
-    database_norm = database[['danceability','energy', 'speechiness','acousticness','instrumentalness','liveness','valence','tempo', 'loudness']]
-    database_norm = (database_norm - database_norm.min())/(database_norm.max() - database_norm.min())
+    database['tempo_norm'] = (database['tempo'] - database['tempo'].min())/(database['tempo'].max() - database['tempo'].min())
+    database['loudness_norm'] = 10 ** (database['loudness']/20)
+    database_norm = database[['danceability','energy', 'speechiness','acousticness','instrumentalness','liveness','valence','tempo_norm', 'loudness_norm']]
 
     #  Get the cosine similarity between the song and the songs of the database
     cos_sim = cosine_similarity(database_norm.iloc[[i]], database_norm)
@@ -160,7 +158,7 @@ class recommender:
     """
 
     # Load the Doc2Vec model trained on the database of songs
-    model = Doc2Vec.load('data/doc2vec_60epochs.model')
+    model = Doc2Vec.load('model/doc2vec_60epochs.model')
 
     # Extract the lyrics of the song dataframe
     lyrics_str = song['Lyrics'].values[0]
@@ -179,6 +177,9 @@ class recommender:
 
     # Add the similarity scores to the song database
     data_sim = dataset.merge(similar_df, left_index = True, right_on = 'index')
+    
+    # Normalize similarity scores from 0 to 1 to be in same range as feature similarity scores.
+    data_sim['similarity_lyrics'] = (data_sim['similarity_lyrics'] - data_sim['similarity_lyrics'].min())/(data_sim['similarity_lyrics'].max() - data_sim['similarity_lyrics'].min())
 
     # return the song ID's and similarity scores
     return data_sim[['id','similarity_lyrics']]

@@ -1,5 +1,5 @@
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -13,19 +13,15 @@ def authenticate_spotify_api():
   """
   Function to authenticate the Spotify API.
   """
-
-  # Get Spotify API keys
-  client_id = os.environ.get("SPOTIPY_CLIENT_SECRET")
-  client_secret = os.environ.get("SPOTIPY_CLIENT_SECRET")
+  scope = "playlist-modify-public"
   
-  # Create and authenticate Spotify API client
-  return spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
+  return spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
 def authenticate_extract_lyrics():
   """
   Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.
   """
-
+  
   # Get Google Cloud Service API keys
   GCS_API_KEY = os.environ.get('GCS_API_KEY')
   GCS_ENGINE_ID = os.environ.get('GCS_ENGINE_ID')
@@ -114,13 +110,13 @@ def radar_chart(song, dataset):
   """
   # Reset the index of the song dataframe
   song = song.reset_index(drop = True)
-
-  # Only keep the audio features of the dataframes
-  song = song[['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence','tempo', 'loudness']]
-  dataset = dataset[['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence','tempo', 'loudness']]
-
+  
   # Normalize the audio features of the song using the audio features of the database.
-  song = (song - dataset.min())/(dataset.max()- dataset.min())
+  song['tempo_norm'] = (song['tempo'] - dataset['tempo'].min())/(dataset['tempo'].max()- dataset['tempo'].min())
+  song ['loudness_norm'] = 10 ** (song['loudness']/20)
+  
+  # Only keep the audio features of the song
+  song = song[['danceability','energy','speechiness','acousticness','instrumentalness','liveness','valence','tempo_norm', 'loudness_norm']]
 
   song = song.rename({'tempo':'tempo normalized', 'loudness': 'loudness normalized'},axis=1)
   song = song.T
@@ -203,3 +199,47 @@ def tag_lyrics(data):
     tagged_documents.append(tagged)
 
   return tagged_documents
+
+def create_playlist(sp, recommendations, name, description):
+  """ 
+  Function to create a playlist on the Spotify account of the authenticated user.
+  
+  Parameters
+  ----------
+  sp : object
+    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
+  recommendations: DataFrame
+    DataFrame of recommendations, output of recommender.content_based_recommender().
+  name : str
+    Name of the playlist.
+  description : str
+    Description of the playlist.
+  """
+  
+  # Get current user ID
+  current_user = sp.current_user()
+  current_user_id = current_user['id']
+  
+  # Get list of track ID's
+  track_id_list = list(recommendations['id'].values)
+  
+  # Create Empty playlist
+  sp.user_playlist_create(user = current_user_id, 
+                          name = name, 
+                          description = description)
+  
+  # Get playlist ID
+  playlists = sp.current_user_playlists(limit=1)
+  playlist_name = playlists['items'][0]['name']
+  playlist_id = playlists['items'][0]['id']
+  
+  # Add tracks to playlist
+  sp.user_playlist_add_tracks(user = current_user_id, 
+                              playlist_id = playlist_id, 
+                              tracks = track_id_list)
+  
+  # Check if playlist is succesfully created.
+  if name == playlist_name:
+    return '**Playlist was succesfully created on your Spotify account.**'
+  else:
+    return '**Playlist was not succesfully created.**'
