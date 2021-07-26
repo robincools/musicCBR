@@ -105,7 +105,7 @@ def main():  # sourcery skip: extract-method
                 st.write('A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).')
 
             # Create Expander for playlist creation.
-            create_playlist_expander = st.beta_expander(label = 'Create playlist of recommendations')
+            create_playlist_expander = st.beta_expander(label = 'Create playlist of recommendations', expanded=True)
             with create_playlist_expander:
                 
                 # Input playlist_name
