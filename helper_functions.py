@@ -152,11 +152,11 @@ def load_data_csv():
   """
   
   # Load lookup table
-  path = 'data/id_lookup.csv.zip'
+  path = 'data/id_lookup.csv'
   lookup_table = pd.read_csv(path, index_col=0)
 
   # Load song data
-  path2 = 'data/data_lyrics_features.csv.zip'
+  path2 = 'data/data_lyrics_features.csv'
   data = pd.read_csv(path2, index_col=0)
 
   return data, lookup_table
