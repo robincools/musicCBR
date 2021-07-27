@@ -9,7 +9,9 @@ from nltk import RegexpTokenizer
 from nltk.corpus import stopwords
 from gensim.models.doc2vec import TaggedDocument
 import mysql.connector as mysql
+from bokeh.models.widgets import Div
 
+@st.cache(allow_output_mutation=True)
 def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI):
   """
   Function to authenticate the Spotify API.
@@ -25,11 +27,17 @@ def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_RE
   """
   scope = "playlist-modify-public"
   
-  return spotipy.Spotify(auth_manager=SpotifyOAuth(client_id = SPOTIPY_CLIENT_ID, 
+  sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id = SPOTIPY_CLIENT_ID, 
                                                    client_secret = SPOTIPY_CLIENT_SECRET, 
                                                    redirect_uri = SPOTIPY_REDIRECT_URI, 
                                                    scope=scope))
+  
+  url = SpotifyOAuth().get_authorize_url()
+  login_url = '[Spotify Log In](' + url + ')'
+    
+  return sp, login_url
 
+@st.cache(allow_output_mutation=True)
 def authenticate_extract_lyrics(GCS_API_KEY, GCS_ENGINE_ID):
   """
   Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.

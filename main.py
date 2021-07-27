@@ -8,13 +8,26 @@ def main():
     # Set the streamlit page configuration
     st.set_page_config(layout="wide", initial_sidebar_state='collapsed')
     
+    
+    # Title
+
+    
     #Authenticate Spotify API
-    sp = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
+    sp, url = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
                                   SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"],
                                   SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"])
     
     extract_lyrics = authenticate_extract_lyrics(GCS_API_KEY = st.secrets["GCS_API_KEY"],
                                                  GCS_ENGINE_ID = st.secrets["GCS_ENGINE_ID"])
+    
+    col1, col2 = st.beta_columns((4,1))
+    # Title
+    col1.title("**Spotify Recommendation system**")
+    
+    #Spotify Login
+    col2. markdown(url)
+    
+
 
     # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
     try:
@@ -22,8 +35,6 @@ def main():
     except:
         data, lookup_table = load_data_csv()
     
-    # Title
-    st.title("Spotify Recommendation system")
 
     # Text input for search query
     search_input = st.text_input('Search Song/Artist')
