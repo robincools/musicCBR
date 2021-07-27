@@ -1,6 +1,7 @@
 import streamlit as st
-from helper_functions import search_multiple_tracks, radar_chart, load_data, authenticate_spotify_api, create_playlist, authenticate_extract_lyrics
+from helper_functions import search_multiple_tracks, radar_chart, load_data_csv, load_data_sql, authenticate_spotify_api, create_playlist, authenticate_extract_lyrics
 from recommender import recommender
+import mysql.connector as mysql
 
 def main():
     
@@ -15,8 +16,11 @@ def main():
     extract_lyrics = authenticate_extract_lyrics(GCS_API_KEY = st.secrets["GCS_API_KEY"],
                                                  GCS_ENGINE_ID = st.secrets["GCS_ENGINE_ID"])
 
-    # Load the song data and id lookup_table
-    data, lookup_table = load_data()
+    # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
+    try:
+        data, lookup_table = load_data_sql()
+    except:
+        data, lookup_table = load_data_csv()
     
     # Title
     st.title("Spotify Recommendation system")

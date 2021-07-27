@@ -8,6 +8,7 @@ from lyrics_extractor import SongLyrics
 from nltk import RegexpTokenizer
 from nltk.corpus import stopwords
 from gensim.models.doc2vec import TaggedDocument
+import mysql.connector as mysql
 
 def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI):
   """
@@ -145,7 +146,7 @@ def radar_chart(song, dataset):
   return fig
 
 @st.cache(allow_output_mutation=True)
-def load_data():
+def load_data_csv():
   """
   Create dataframes for the song data and the id lookup table from csv files
   """
@@ -158,6 +159,24 @@ def load_data():
   path2 = 'data/data_lyrics_features.csv.zip'
   data = pd.read_csv(path2, index_col=0)
 
+  return data, lookup_table
+
+
+@st.cache(allow_output_mutation=True, hash_funcs={"_thread.RLock": lambda _: None})
+def load_data_sql():
+  """
+  Create dataframes for the song data and the id lookup table from sql tables
+  
+  Parameters
+  ----------
+  conn : MySQL connection
+    connection to MySQL server
+  """ 
+  conn = mysql.connect(**st.secrets["mysql"])
+
+  data = pd.read_sql('SELECT * FROM song_data', conn)
+  lookup_table = pd.read_sql('SELECT * FROM lookup_table', conn)
+  
   return data, lookup_table
 
 def clean_lyrics(data):
