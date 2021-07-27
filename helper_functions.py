@@ -210,7 +210,7 @@ def clean_lyrics(data):
 
   return cleaned_data
 
-
+@st.cache()
 def download_nltk():
   
   nltk.download('stopwords')
