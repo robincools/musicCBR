@@ -14,8 +14,8 @@ def main():
     
     #Authenticate Spotify API
     sp, url = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
-                                  SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"],
-                                  SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"])
+                                       SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"],
+                                       SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"])
     
     extract_lyrics = authenticate_extract_lyrics(GCS_API_KEY = st.secrets["GCS_API_KEY"],
                                                  GCS_ENGINE_ID = st.secrets["GCS_ENGINE_ID"])
