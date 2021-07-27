@@ -3,8 +3,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import os
 from lyrics_extractor import SongLyrics
+import nltk
 from nltk import RegexpTokenizer
 from nltk.corpus import stopwords
 from gensim.models.doc2vec import TaggedDocument
@@ -209,6 +209,12 @@ def clean_lyrics(data):
     cleaned_data.append(dlist)
 
   return cleaned_data
+
+
+def download_nltk():
+  
+  nltk.download('stopwords')
+  return
 
 def tag_lyrics(data):
   """
