@@ -22,7 +22,10 @@ def main():
     st.title("**Spotify Recommendation system**")
 
     # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
-    data, lookup_table = load_data_sql()
+    try:
+        data, lookup_table = load_data_sql()
+    except:
+        data, lookup_table = load_data_csv()
     
 
     # Text input for search query
