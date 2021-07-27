@@ -1,5 +1,5 @@
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyClientCredentials
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -11,7 +11,7 @@ from gensim.models.doc2vec import TaggedDocument
 import mysql.connector as mysql
 
 @st.cache(allow_output_mutation=True)
-def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_REDIRECT_URI):
+def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET):
   """
   Function to authenticate the Spotify API.
   
@@ -24,17 +24,10 @@ def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET,SPOTIPY_RE
   SPOTIPY_REDIRECT_URI: link
     Link to which Spotify API is set in Spotify Dashboard
   """
-  scope = "playlist-modify-public"
-  
-  sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id = SPOTIPY_CLIENT_ID, 
-                                                   client_secret = SPOTIPY_CLIENT_SECRET, 
-                                                   redirect_uri = SPOTIPY_REDIRECT_URI, 
-                                                   scope=scope))
-  
-  url = SpotifyOAuth().get_authorize_url()
-  login_url = '[Log In to Spotify](' + url + ')'
+  auth_manager = SpotifyClientCredentials(client_id = SPOTIPY_CLIENT_ID, 
+                                          client_secret=SPOTIPY_CLIENT_SECRET)
     
-  return sp, login_url
+  return spotipy.Spotify(auth_manager=auth_manager)
 
 @st.cache(allow_output_mutation=True)
 def authenticate_extract_lyrics(GCS_API_KEY, GCS_ENGINE_ID):
@@ -242,7 +235,7 @@ def tag_lyrics(data):
 
   return tagged_documents
 
-def create_playlist(sp, recommendations, name, description):
+def create_playlist(user_id, sp, recommendations, name, description):
   """ 
   Function to create a playlist on the Spotify account of the authenticated user.
   
@@ -266,7 +259,7 @@ def create_playlist(sp, recommendations, name, description):
   track_id_list = list(recommendations['id'].values)
   
   # Create Empty playlist
-  sp.user_playlist_create(user = current_user_id, 
+  sp.user_playlist_create(user = user_id, 
                           name = name, 
                           description = description)
   

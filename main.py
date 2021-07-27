@@ -1,5 +1,5 @@
 import streamlit as st
-from helper_functions import search_multiple_tracks, radar_chart, load_data_csv, load_data_sql, authenticate_spotify_api, create_playlist, authenticate_extract_lyrics
+from helper_functions import search_multiple_tracks, radar_chart, load_data_csv, load_data_sql, authenticate_spotify_api, authenticate_extract_lyrics
 from recommender import recommender
 import mysql.connector as mysql
 
@@ -8,26 +8,16 @@ def main():
     # Set the streamlit page configuration
     st.set_page_config(layout="wide", initial_sidebar_state='collapsed')
     
-    
-    # Title
-
-    
     #Authenticate Spotify API
-    sp, url = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
-                                       SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"],
-                                       SPOTIPY_REDIRECT_URI = st.secrets["SPOTIPY_REDIRECT_URI"])
+    sp = authenticate_spotify_api(SPOTIPY_CLIENT_ID = st.secrets["SPOTIPY_CLIENT_ID"], 
+                                  SPOTIPY_CLIENT_SECRET = st.secrets["SPOTIPY_CLIENT_SECRET"])
     
     extract_lyrics = authenticate_extract_lyrics(GCS_API_KEY = st.secrets["GCS_API_KEY"],
                                                  GCS_ENGINE_ID = st.secrets["GCS_ENGINE_ID"])
     
-    col1, col2 = st.beta_columns((4,1))
-    # Title
-    col1.title("**Spotify Recommendation system**")
-    
-    #Spotify Login
-    col2. markdown(url)
-    
 
+    # Title
+    st.title("**Spotify Recommendation system**")
 
     # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
     try:
@@ -124,28 +114,6 @@ def main():
                 st.write('The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration. Here normalized to a value between 0 and 1.')
                 st.markdown('**Valence**')
                 st.write('A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).')
-
-            # Create Expander for playlist creation.
-            create_playlist_expander = st.beta_expander(label = 'Create playlist of recommendations', expanded=True)
-            with create_playlist_expander:
-                
-                # Input playlist_name
-                playlist_name = st.text_input('Playlist Name', value = choose_track + ' Recommendations')
-                
-                # Playlist description
-                description = 'Recommendations based on the audio features and lyrics of ' + choose_track + '.'
-                
-                # Button that calls create_playlist to create playlist.
-                if st.button('Create playlist'):
-                    # Check if a playlist name is given, otherwise ask for playlist name.
-                    if not playlist_name:
-                        st.write('**Please input playlist name.**')
-                    else:
-                        message = create_playlist(sp = sp,
-                                        recommendations = recommendations, 
-                                        name = playlist_name, 
-                                        description = description)
-                        st.write(message)
             
             # Create header
             st.header('Recommendations')
