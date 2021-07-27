@@ -22,10 +22,7 @@ def main():
     st.title("**Spotify Recommendation system**")
 
     # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
-    try:
-        data, lookup_table = load_data_sql()
-    except:
-        data, lookup_table = load_data_csv()
+    data, lookup_table = load_data_sql()
     
 
     # Text input for search query
@@ -124,10 +121,9 @@ def main():
             st.markdown(' ')
             
             # Print the column headers in the correct columns
-            cols = st.beta_columns(6)
+            cols = st.beta_columns(5)
             cols[1].markdown('**Track name**')
             cols[2].markdown('**Artist**')
-            cols[3].markdown('**Similarity score**')
 
             #Whitespace
             st.markdown(' ')
@@ -137,22 +133,21 @@ def main():
 
             # Print the recommendations
             for index, recommendation in recommendations.iterrows():
-                cols = st.beta_columns(6)
+                cols = st.beta_columns(5)
                 
                 # Print album image, song name, artist name and similarty score
                 cols[0].image(recommendation['img_url'])
                 cols[1].markdown(recommendation['Song'])
                 cols[2].markdown(recommendation['Band'])
-                cols[3].markdown(round(recommendation['similarity'],4))
                 
                 # Make show lyrics button for each song
-                button = cols[4].checkbox('Show Lyrics', key= str(index))
+                button = cols[3].checkbox('Show Lyrics', key= str(index))
                 
                 # Append buttons to list
                 lyrics_button.append(button)
                 
                 # Link to play song on Spotify
-                cols[5].markdown(recommendation['track_url'], unsafe_allow_html = True)
+                cols[4].markdown(recommendation['track_url'], unsafe_allow_html = True)
                 
                 # Print lyrics if the show lyrics button is clicked (button value is True)
                 if lyrics_button[index]:
