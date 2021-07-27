@@ -9,3 +9,4 @@ lyrics-extractor==3.0.1
 spotipy==2.18.0
 python-Levenshtein==0.12.2
 mysql-connector-python==8.0.06
+plotly-express==0.4.1
