@@ -7,3 +7,4 @@ musicCBR
    helper_functions
    main
    recommender
+   train_model
