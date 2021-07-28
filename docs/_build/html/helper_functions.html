@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>helper_functions module &mdash; MusicCBR 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="main module" href="main.html" />
+    <link rel="prev" title="musicCBR" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MusicCBR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">musicCBR</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">helper_functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recommender.html">recommender module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MusicCBR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">musicCBR</a> &raquo;</li>
+        
+      <li>helper_functions module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/helper_functions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-helper_functions">
+<span id="helper-functions-module"></span><h1>helper_functions module<a class="headerlink" href="#module-helper_functions" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.authenticate_extract_lyrics">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">authenticate_extract_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GCS_API_KEY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GCS_ENGINE_ID</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#authenticate_extract_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.authenticate_extract_lyrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>GCS_API_KEY</strong> (<em>str</em>) – Google cloud service API key</p></li>
+<li><p><strong>GCS_ENGINE_ID</strong> (<em>str</em>) – Google custom search engine ID</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Songlyrics object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.authenticate_spotify_api">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">authenticate_spotify_api</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SPOTIPY_CLIENT_ID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SPOTIPY_CLIENT_SECRET</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#authenticate_spotify_api"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.authenticate_spotify_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to authenticate the Spotify API with client credentials flow manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>SPOTIPY_CLIENT_ID</strong> (<em>str</em>) – public Spotify API key</p></li>
+<li><p><strong>SPOTIPY_CLIENT_SECRET</strong> (<em>str</em>) – private Spotify API key</p></li>
+<li><p><strong>SPOTIPY_REDIRECT_URI</strong> (<em>link</em>) – Link to which Spotify API is set in Spotify Dashboard</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Spotify API client</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.clean_lyrics">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">clean_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#clean_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.clean_lyrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to clean the lyrics. It lowercases the lyrics, tokenizes it and removes all stopwords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – list of strings of song lyrics</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list) list of tokenized and clean lyrics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.create_playlist">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">create_playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recommendations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#create_playlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.create_playlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to create a playlist on the Spotify account of the authenticated user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sp</strong> (<em>object</em>) – spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</p></li>
+<li><p><strong>recommendations</strong> (<em>DataFrame</em>) – DataFrame of recommendations, output of recommender.content_based_recommender().</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the playlist.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – Description of the playlist.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(str) succes/error message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.download_nltk">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">download_nltk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#download_nltk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.download_nltk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to download the nltk stopwords, necessary for downloading them in deployed streamlit.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.get_img_urls">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">get_img_urls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#get_img_urls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.get_img_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the album image urls from tracks with the Spotify API, given a list of track id’s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>track_ids</strong> (<em>list</em>) – Spotify track id’s</p></li>
+<li><p><strong>sp</strong> (<em>object</em>) – spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(href) URL’s to album images from Spotify API</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.load_data_csv">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">load_data_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#load_data_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.load_data_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create dataframes for the song data and the id lookup table from csv files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(Pandas DataFrame) Pandas DataFrame of song data and lookup table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.load_data_sql">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">load_data_sql</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#load_data_sql"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.load_data_sql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create dataframes for the song data and the id lookup table from sql tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conn</strong> (<em>MySQL connection</em>) – connection to MySQL server</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(Pandas DataFrame) Pandas DataFrame of song data and lookup table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.radar_chart">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">radar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">song</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#radar_chart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.radar_chart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to make a radar chart of the audio features of a song.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>song</strong> (<em>DataFrame</em>) – Pandas dataframe with the audio features of a song</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em>) – Pandas dataframe with the database of songs we use to make recommendations. Used for normalizing the audio features (tempo and loudness) of the song.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>plotly-express radar chart figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.search_multiple_tracks">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">search_multiple_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#search_multiple_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.search_multiple_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to return the top 10 Spotify track id’s, track name and artist given a search querry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_quear</strong> – search query / search term</p></li>
+<li><p><strong>sp</strong> (<em>object</em>) – spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(dict) Dictionary with track names, artists and id’s</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="helper_functions.tag_lyrics">
+<span class="sig-prename descclassname"><span class="pre">helper_functions.</span></span><span class="sig-name descname"><span class="pre">tag_lyrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/helper_functions.html#tag_lyrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#helper_functions.tag_lyrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to tag every document. Needed as input for the Doc2Vec network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – list of cleaned lyrics (output of the clean_lyrics function)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(list) list of tagged lyrics</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="main.html" class="btn btn-neutral float-right" title="main module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="musicCBR" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Robin Cools.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>helper_functions &mdash; MusicCBR 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> MusicCBR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">musicCBR</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MusicCBR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>helper_functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for helper_functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">spotipy</span>
+<span class="kn">from</span> <span class="nn">spotipy.oauth2</span> <span class="kn">import</span> <span class="n">SpotifyClientCredentials</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">streamlit</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="kn">from</span> <span class="nn">lyrics_extractor</span> <span class="kn">import</span> <span class="n">SongLyrics</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">from</span> <span class="nn">nltk</span> <span class="kn">import</span> <span class="n">RegexpTokenizer</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">gensim.models.doc2vec</span> <span class="kn">import</span> <span class="n">TaggedDocument</span>
+<span class="kn">import</span> <span class="nn">mysql.connector</span> <span class="k">as</span> <span class="nn">mysql</span>
+
+<div class="viewcode-block" id="authenticate_spotify_api"><a class="viewcode-back" href="../helper_functions.html#helper_functions.authenticate_spotify_api">[docs]</a><span class="nd">@st</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">allow_output_mutation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">authenticate_spotify_api</span><span class="p">(</span><span class="n">SPOTIPY_CLIENT_ID</span><span class="p">,</span> <span class="n">SPOTIPY_CLIENT_SECRET</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to authenticate the Spotify API with client credentials flow manager.</span>
+<span class="sd">  </span>
+<span class="sd">  :type SPOTIPY_CLIENT_ID: str</span>
+<span class="sd">  :param SPOTIPY_CLIENT_ID:  public Spotify API key</span>
+<span class="sd">  </span>
+<span class="sd">  :type SPOTIPY_CLIENT_SECRET: str</span>
+<span class="sd">  :param SPOTIPY_CLIENT_SECRET: private Spotify API key</span>
+<span class="sd">  </span>
+<span class="sd">  :type SPOTIPY_REDIRECT_URI: link</span>
+<span class="sd">  :param SPOTIPY_REDIRECT_URI: Link to which Spotify API is set in Spotify Dashboard</span>
+<span class="sd">  </span>
+<span class="sd">  :return: Spotify API client</span>
+<span class="sd">  </span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">auth_manager</span> <span class="o">=</span> <span class="n">SpotifyClientCredentials</span><span class="p">(</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">SPOTIPY_CLIENT_ID</span><span class="p">,</span> 
+                                          <span class="n">client_secret</span><span class="o">=</span><span class="n">SPOTIPY_CLIENT_SECRET</span><span class="p">)</span>
+    
+  <span class="k">return</span> <span class="n">spotipy</span><span class="o">.</span><span class="n">Spotify</span><span class="p">(</span><span class="n">auth_manager</span><span class="o">=</span><span class="n">auth_manager</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="authenticate_extract_lyrics"><a class="viewcode-back" href="../helper_functions.html#helper_functions.authenticate_extract_lyrics">[docs]</a><span class="nd">@st</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">allow_output_mutation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">authenticate_extract_lyrics</span><span class="p">(</span><span class="n">GCS_API_KEY</span><span class="p">,</span> <span class="n">GCS_ENGINE_ID</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.</span>
+<span class="sd">  </span>
+<span class="sd">  :type GCS_API_KEY: str</span>
+<span class="sd">  :param GCS_API_KEY: Google cloud service API key</span>
+<span class="sd">  </span>
+<span class="sd">  :type GCS_ENGINE_ID: str</span>
+<span class="sd">  :param GCS_ENGINE_ID: Google custom search engine ID</span>
+<span class="sd">  </span>
+<span class="sd">  :return: Songlyrics object</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1"># Initialize lyrics_extractor class</span>
+  <span class="k">return</span> <span class="n">SongLyrics</span><span class="p">(</span><span class="n">GCS_API_KEY</span><span class="p">,</span> <span class="n">GCS_ENGINE_ID</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="search_multiple_tracks"><a class="viewcode-back" href="../helper_functions.html#helper_functions.search_multiple_tracks">[docs]</a><span class="k">def</span> <span class="nf">search_multiple_tracks</span><span class="p">(</span><span class="n">search_query</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to return the top 10 Spotify track id&#39;s, track name and artist given a search querry.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  :type search_query: str</span>
+<span class="sd">  :param search_quear: search query / search term</span>
+<span class="sd">  </span>
+<span class="sd">  :type sp: object</span>
+<span class="sd">  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (dict) Dictionary with track names, artists and id&#39;s</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1"># List to store the track ids</span>
+  <span class="n">track_ids</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="c1"># List to store the track names and artists</span>
+  <span class="n">tracks</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="c1">#Search for 10 results in the Spotify API given a search querry</span>
+  <span class="n">results</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">search_query</span> <span class="p">,</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+  <span class="n">results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tracks&#39;</span><span class="p">][</span><span class="s1">&#39;items&#39;</span><span class="p">]</span>
+
+  <span class="c1"># Extract the track id&#39;s, names and artists for all the search results</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)):</span>
+
+      <span class="c1"># Get track id, artist and name</span>
+      <span class="n">track_id</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+      <span class="n">artist</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;artists&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+      <span class="n">track_name</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+      <span class="c1"># Get a string with the artist and track name</span>
+      <span class="n">track</span> <span class="o">=</span> <span class="n">artist</span> <span class="o">+</span> <span class="s1">&#39; - &#39;</span> <span class="o">+</span> <span class="n">track_name</span>
+
+      <span class="c1"># Append the track id&#39;s and track name/artist to the list</span>
+      <span class="n">track_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">track_id</span><span class="p">)</span>
+      <span class="n">tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">track</span><span class="p">)</span>
+
+  <span class="c1"># Make a dictionary of the track id and track name/artist list.</span>
+  <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">tracks</span><span class="p">,</span><span class="n">track_ids</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_img_urls"><a class="viewcode-back" href="../helper_functions.html#helper_functions.get_img_urls">[docs]</a><span class="k">def</span> <span class="nf">get_img_urls</span><span class="p">(</span><span class="n">track_ids</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to get the album image urls from tracks with the Spotify API, given a list of track id&#39;s.</span>
+
+<span class="sd">  :type track_ids: list</span>
+<span class="sd">  :param track_ids: Spotify track id&#39;s</span>
+<span class="sd">  </span>
+<span class="sd">  :type sp: object</span>
+<span class="sd">  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (href) URL&#39;s to album images from Spotify API</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1"># Get a list with track information using a list of track id&#39;s</span>
+  <span class="n">tracks</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">tracks</span><span class="p">(</span><span class="n">track_ids</span><span class="p">)</span>
+
+  <span class="c1"># Initialize list to append image urls to</span>
+  <span class="n">img_urls</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tracks</span><span class="p">[</span><span class="s1">&#39;tracks&#39;</span><span class="p">])):</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">tracks</span><span class="p">[</span><span class="s1">&#39;tracks&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;album&#39;</span><span class="p">][</span><span class="s1">&#39;images&#39;</span><span class="p">]</span>
+
+    <span class="n">seq</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">images</span> <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">min</span><span class="p">(</span><span class="n">seq</span><span class="p">))</span>
+    <span class="n">img_url</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+
+    <span class="n">img_urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_url</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">img_urls</span></div>
+
+<div class="viewcode-block" id="radar_chart"><a class="viewcode-back" href="../helper_functions.html#helper_functions.radar_chart">[docs]</a><span class="k">def</span> <span class="nf">radar_chart</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to make a radar chart of the audio features of a song.</span>
+
+<span class="sd">  :type song: DataFrame</span>
+<span class="sd">  :param song: Pandas dataframe with the audio features of a song</span>
+
+<span class="sd">  :type dataset: DataFrame</span>
+<span class="sd">  :param dataset: Pandas dataframe with the database of songs we use to make recommendations. Used for normalizing the audio features (tempo and loudness) of the song.</span>
+<span class="sd">  </span>
+<span class="sd">  :return: plotly-express radar chart figure</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="c1"># Reset the index of the song dataframe</span>
+  <span class="n">song</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+  
+  <span class="c1"># Normalize the audio features of the song using the audio features of the database.</span>
+  <span class="n">song</span><span class="p">[</span><span class="s1">&#39;tempo_norm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;tempo&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;tempo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;tempo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;tempo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+  <span class="n">song</span> <span class="p">[</span><span class="s1">&#39;loudness_norm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;loudness&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">20</span><span class="p">)</span>
+  
+  <span class="c1"># Only keep the audio features of the song</span>
+  <span class="n">song</span> <span class="o">=</span> <span class="n">song</span><span class="p">[[</span><span class="s1">&#39;danceability&#39;</span><span class="p">,</span><span class="s1">&#39;energy&#39;</span><span class="p">,</span><span class="s1">&#39;speechiness&#39;</span><span class="p">,</span><span class="s1">&#39;acousticness&#39;</span><span class="p">,</span><span class="s1">&#39;instrumentalness&#39;</span><span class="p">,</span><span class="s1">&#39;liveness&#39;</span><span class="p">,</span><span class="s1">&#39;valence&#39;</span><span class="p">,</span><span class="s1">&#39;tempo_norm&#39;</span><span class="p">,</span> <span class="s1">&#39;loudness_norm&#39;</span><span class="p">]]</span>
+
+  <span class="n">song</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;tempo&#39;</span><span class="p">:</span><span class="s1">&#39;tempo normalized&#39;</span><span class="p">,</span> <span class="s1">&#39;loudness&#39;</span><span class="p">:</span> <span class="s1">&#39;loudness normalized&#39;</span><span class="p">},</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">song</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">T</span>
+  <span class="n">song</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+  <span class="c1"># Create radar chart</span>
+  <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line_polar</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">line_close</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+  <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span><span class="n">fill</span> <span class="o">=</span> <span class="s1">&#39;toself&#39;</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">fig</span></div>
+
+<div class="viewcode-block" id="load_data_csv"><a class="viewcode-back" href="../helper_functions.html#helper_functions.load_data_csv">[docs]</a><span class="nd">@st</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">allow_output_mutation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_data_csv</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Create dataframes for the song data and the id lookup table from csv files.</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (Pandas DataFrame) Pandas DataFrame of song data and lookup table</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1"># Load lookup table</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;data/id_lookup.csv&#39;</span>
+  <span class="n">lookup_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+  <span class="c1"># Load song data</span>
+  <span class="n">path2</span> <span class="o">=</span> <span class="s1">&#39;data/data_lyrics_features.csv&#39;</span>
+  <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path2</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">lookup_table</span></div>
+
+
+<div class="viewcode-block" id="load_data_sql"><a class="viewcode-back" href="../helper_functions.html#helper_functions.load_data_sql">[docs]</a><span class="nd">@st</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">allow_output_mutation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hash_funcs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;_thread.RLock&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
+<span class="k">def</span> <span class="nf">load_data_sql</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Create dataframes for the song data and the id lookup table from sql tables</span>
+<span class="sd">  </span>
+<span class="sd">  :type conn: MySQL connection</span>
+<span class="sd">  :param conn: connection to MySQL server</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (Pandas DataFrame) Pandas DataFrame of song data and lookup table</span>
+<span class="sd">  &quot;&quot;&quot;</span> 
+  <span class="n">conn</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;mysql&quot;</span><span class="p">])</span>
+
+  <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM song_data&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+  <span class="n">lookup_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM lookup_table&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+  
+  <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">lookup_table</span></div>
+
+<div class="viewcode-block" id="clean_lyrics"><a class="viewcode-back" href="../helper_functions.html#helper_functions.clean_lyrics">[docs]</a><span class="k">def</span> <span class="nf">clean_lyrics</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to clean the lyrics. It lowercases the lyrics, tokenizes it and removes all stopwords.</span>
+
+<span class="sd">  :type data: list</span>
+<span class="sd">  :param data:  list of strings of song lyrics</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (list) list of tokenized and clean lyrics</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1">#Initialize list to store clean data, tokenizer and the set of stopwords</span>
+  <span class="n">cleaned_data</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\w+&#39;</span><span class="p">)</span>
+  <span class="n">stopword_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">))</span>
+
+  <span class="c1"># Clean data for all the lyrics in the list</span>
+  <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="c1"># Get lowercase of lyrics string</span>
+    <span class="n">new_str</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="c1"># Tokenize lyrics strings</span>
+    <span class="n">dlist</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">new_str</span><span class="p">)</span>
+
+    <span class="c1"># Remove stopwords</span>
+    <span class="n">dlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dlist</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">stopword_set</span><span class="p">))</span>
+
+    <span class="c1"># Append cleaned lyrics to list</span>
+    <span class="n">cleaned_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dlist</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">cleaned_data</span></div>
+
+<div class="viewcode-block" id="download_nltk"><a class="viewcode-back" href="../helper_functions.html#helper_functions.download_nltk">[docs]</a><span class="nd">@st</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">download_nltk</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">  Function to download the nltk stopwords, necessary for downloading them in deployed streamlit.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;stopwords&#39;</span><span class="p">)</span>
+  <span class="k">return</span></div>
+
+<div class="viewcode-block" id="tag_lyrics"><a class="viewcode-back" href="../helper_functions.html#helper_functions.tag_lyrics">[docs]</a><span class="k">def</span> <span class="nf">tag_lyrics</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Function to tag every document. Needed as input for the Doc2Vec network.</span>
+
+<span class="sd">  :type data: list</span>
+<span class="sd">  :param data: list of cleaned lyrics (output of the clean_lyrics function)</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (list) list of tagged lyrics</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="c1"># Initialize list to store tagged lyrics</span>
+  <span class="n">tagged_documents</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="c1"># Tag lyrics for all the lyrics in the list</span>
+  <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">doc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+
+    <span class="c1"># Tag lyrics</span>
+    <span class="n">tagged</span> <span class="o">=</span> <span class="n">TaggedDocument</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="c1"># Append tagged lyrics to</span>
+    <span class="n">tagged_documents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tagged</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">tagged_documents</span></div>
+
+<div class="viewcode-block" id="create_playlist"><a class="viewcode-back" href="../helper_functions.html#helper_functions.create_playlist">[docs]</a><span class="k">def</span> <span class="nf">create_playlist</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">recommendations</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">  Function to create a playlist on the Spotify account of the authenticated user.</span>
+
+<span class="sd">  :type sp: object</span>
+<span class="sd">  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()</span>
+<span class="sd">  </span>
+<span class="sd">  :type recommendations: DataFrame</span>
+<span class="sd">  :param recommendations: DataFrame of recommendations, output of recommender.content_based_recommender().</span>
+<span class="sd">  </span>
+<span class="sd">  :type name: str</span>
+<span class="sd">  :param name: Name of the playlist.</span>
+<span class="sd">  </span>
+<span class="sd">  :type description: str</span>
+<span class="sd">  :param description: Description of the playlist.</span>
+<span class="sd">  </span>
+<span class="sd">  :return: (str) succes/error message</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="c1"># Get current user ID</span>
+  <span class="n">current_user</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">current_user</span><span class="p">()</span>
+  <span class="n">current_user_id</span> <span class="o">=</span> <span class="n">current_user</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+  
+  <span class="c1"># Get list of track ID&#39;s</span>
+  <span class="n">track_id_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">recommendations</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+  
+  <span class="c1"># Create Empty playlist</span>
+  <span class="n">sp</span><span class="o">.</span><span class="n">user_playlist_create</span><span class="p">(</span><span class="n">user</span> <span class="o">=</span> <span class="n">user_id</span><span class="p">,</span> 
+                          <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> 
+                          <span class="n">description</span> <span class="o">=</span> <span class="n">description</span><span class="p">)</span>
+  
+  <span class="c1"># Get playlist ID</span>
+  <span class="n">playlists</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">current_user_playlists</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">playlist_name</span> <span class="o">=</span> <span class="n">playlists</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+  <span class="n">playlist_id</span> <span class="o">=</span> <span class="n">playlists</span><span class="p">[</span><span class="s1">&#39;items&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+  
+  <span class="c1"># Add tracks to playlist</span>
+  <span class="n">sp</span><span class="o">.</span><span class="n">user_playlist_add_tracks</span><span class="p">(</span><span class="n">user</span> <span class="o">=</span> <span class="n">current_user_id</span><span class="p">,</span> 
+                              <span class="n">playlist_id</span> <span class="o">=</span> <span class="n">playlist_id</span><span class="p">,</span> 
+                              <span class="n">tracks</span> <span class="o">=</span> <span class="n">track_id_list</span><span class="p">)</span>
+  
+  <span class="c1"># Check if playlist is succesfully created.</span>
+  <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">playlist_name</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;**Playlist was succesfully created on your Spotify account.**&#39;</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;**Playlist was not succesfully created.**&#39;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Robin Cools.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

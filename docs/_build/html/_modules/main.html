@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>main &mdash; MusicCBR 2021 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> MusicCBR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">musicCBR</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MusicCBR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>main</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">streamlit</span> <span class="k">as</span> <span class="nn">st</span>
+<span class="kn">from</span> <span class="nn">helper_functions</span> <span class="kn">import</span> <span class="n">search_multiple_tracks</span><span class="p">,</span> <span class="n">radar_chart</span><span class="p">,</span> <span class="n">load_data_csv</span><span class="p">,</span> <span class="n">load_data_sql</span><span class="p">,</span> <span class="n">authenticate_spotify_api</span><span class="p">,</span> <span class="n">authenticate_extract_lyrics</span><span class="p">,</span> <span class="n">download_nltk</span>
+<span class="kn">from</span> <span class="nn">recommender</span> <span class="kn">import</span> <span class="n">recommender</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../main.html#main.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Streamlit frontend.</span>
+<span class="sd">    </span>
+<span class="sd">    Run &quot;streamlit run main.py&quot; in terminal to locally run this application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set the streamlit page configuration</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">set_page_config</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s2">&quot;wide&quot;</span><span class="p">,</span> <span class="n">initial_sidebar_state</span><span class="o">=</span><span class="s1">&#39;collapsed&#39;</span><span class="p">)</span>
+    
+    <span class="c1">#Authenticate Spotify API</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="n">authenticate_spotify_api</span><span class="p">(</span><span class="n">SPOTIPY_CLIENT_ID</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;SPOTIPY_CLIENT_ID&quot;</span><span class="p">],</span> 
+                                  <span class="n">SPOTIPY_CLIENT_SECRET</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;SPOTIPY_CLIENT_SECRET&quot;</span><span class="p">])</span>
+    
+    <span class="n">extract_lyrics</span> <span class="o">=</span> <span class="n">authenticate_extract_lyrics</span><span class="p">(</span><span class="n">GCS_API_KEY</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;GCS_API_KEY&quot;</span><span class="p">],</span>
+                                                 <span class="n">GCS_ENGINE_ID</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;GCS_ENGINE_ID&quot;</span><span class="p">])</span>
+    
+    <span class="c1"># Download stopwords for nltk</span>
+    <span class="n">download_nltk</span><span class="p">()</span>
+    
+    <span class="c1"># Title</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;**Spotify Recommendation system**&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Load the song data and id lookup_table from sql server. If connection to sql-server can&#39;t be made, load from csv file.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">lookup_table</span> <span class="o">=</span> <span class="n">load_data_sql</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">lookup_table</span> <span class="o">=</span> <span class="n">load_data_csv</span><span class="p">()</span>
+    
+
+    <span class="c1"># Text input for search query</span>
+    <span class="n">search_input</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">text_input</span><span class="p">(</span><span class="s1">&#39;Search Song/Artist&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Check if a search query is given, otherwise ask for search query.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">search_input</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;**Please enter a search term.**&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Search the track information</span>
+        <span class="n">track_dict</span> <span class="o">=</span> <span class="n">search_multiple_tracks</span><span class="p">(</span><span class="n">search_input</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
+        
+        <span class="c1"># Check if search query gives search results, otherwise ask for different search query.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">track_dict</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;**No results found, please change your search term.**&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Select a track of the search results</span>
+            <span class="n">choose_track</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="s1">&#39;Select Track&#39;</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">track_dict</span><span class="p">)</span>
+
+            <span class="c1"># Get the track id of the selected track</span>
+            <span class="n">track_id</span> <span class="o">=</span> <span class="n">track_dict</span><span class="p">[</span><span class="n">choose_track</span><span class="p">]</span>
+            
+            <span class="c1"># Define 2 columns for n_songs and alpha</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">beta_columns</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            
+            <span class="c1"># Number input for the number of songs that need to be recommended, limit number of recommendations between 1 and 50 (Otherwise Spotify API doesn&#39;t work to get img_urls).</span>
+            <span class="n">n_songs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">number_input</span><span class="p">(</span><span class="s1">&#39;Number of recommendations (max 50)&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            
+            <span class="c1"># Slider to determine the percentage that the lyrics recommender needs to be part of the total recommendation</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;How much do the lyrics need to part of the recommendation? (in percentage)&#39;</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+            
+            <span class="c1"># Create recommend object from recommender class.</span>
+            <span class="n">recommend</span> <span class="o">=</span> <span class="n">recommender</span><span class="p">(</span><span class="n">track_id</span> <span class="o">=</span> <span class="n">track_id</span><span class="p">,</span> 
+                                    <span class="n">database</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> 
+                                    <span class="n">lookup_table</span> <span class="o">=</span> <span class="n">lookup_table</span><span class="p">,</span> 
+                                    <span class="n">n_songs</span> <span class="o">=</span> <span class="n">n_songs</span><span class="p">,</span>
+                                    <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span>
+                                    <span class="n">sp</span> <span class="o">=</span> <span class="n">sp</span><span class="p">,</span>
+                                    <span class="n">extract_lyrics</span> <span class="o">=</span> <span class="n">extract_lyrics</span><span class="p">)</span>
+
+            <span class="c1"># Call content_based_recommender method</span>
+            <span class="n">song</span><span class="p">,</span> <span class="n">recommendations</span> <span class="o">=</span> <span class="n">recommend</span><span class="o">.</span><span class="n">content_based_recommender</span><span class="p">()</span>
+
+            <span class="c1"># Make radar chart of the song we want to make recommendations for</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">radar_chart</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+            <span class="c1"># Create expander for the track analysis</span>
+            <span class="n">track_analysis</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">beta_expander</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Show track audio features&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">track_analysis</span><span class="p">:</span>
+                
+                <span class="c1"># Plot radar chart</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">plotly_chart</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+                <span class="c1"># horizontal line</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;---&quot;&quot;&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Print the audio features of the song in 3 columns</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">beta_columns</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Acousticness: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;acousticness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Danceability: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;danceability&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Energy: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Instrumentalness: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;instrumentalness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Livenss: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;liveness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Loudness: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;loudness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;dB&#39;</span><span class="p">)</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Speechiness: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;speechiness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Tempo: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;tempo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="s1">&#39;BPM&#39;</span><span class="p">)</span>
+                <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Valence: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="p">[</span><span class="s1">&#39;valence&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                
+                <span class="c1"># horizontal line</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;---&quot;&quot;&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Explanation of the audio features</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Acousticness**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Danceability**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Energy**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Instrumentalness**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”. The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Liveness**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Loudness**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typical range between -60 and 0 db. Here normalized to a value between 0 and 1.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Speechiness**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Tempo**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration. Here normalized to a value between 0 and 1.&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Valence**&#39;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Create header</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">header</span><span class="p">(</span><span class="s1">&#39;Recommendations&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Whitespace</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Print the column headers in the correct columns</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">beta_columns</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Track name**&#39;</span><span class="p">)</span>
+            <span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Artist**&#39;</span><span class="p">)</span>
+
+            <span class="c1">#Whitespace</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+
+            <span class="c1"># Initialize list for the show lyrics buttons of </span>
+            <span class="n">lyrics_button</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Print the recommendations</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">recommendation</span> <span class="ow">in</span> <span class="n">recommendations</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">beta_columns</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+                
+                <span class="c1"># Print album image, song name, artist name and similarty score</span>
+                <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">recommendation</span><span class="p">[</span><span class="s1">&#39;img_url&#39;</span><span class="p">])</span>
+                <span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">recommendation</span><span class="p">[</span><span class="s1">&#39;Song&#39;</span><span class="p">])</span>
+                <span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">recommendation</span><span class="p">[</span><span class="s1">&#39;Band&#39;</span><span class="p">])</span>
+                
+                <span class="c1"># Make show lyrics button for each song</span>
+                <span class="n">button</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span><span class="s1">&#39;Show Lyrics&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+                
+                <span class="c1"># Append buttons to list</span>
+                <span class="n">lyrics_button</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">button</span><span class="p">)</span>
+                
+                <span class="c1"># Link to play song on Spotify</span>
+                <span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">recommendation</span><span class="p">[</span><span class="s1">&#39;track_url&#39;</span><span class="p">],</span> <span class="n">unsafe_allow_html</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+                
+                <span class="c1"># Print lyrics if the show lyrics button is clicked (button value is True)</span>
+                <span class="k">if</span> <span class="n">lyrics_button</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s1">&#39;**Lyrics:**&#39;</span><span class="p">)</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">recommendation</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]][</span><span class="s1">&#39;Lyrics&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Robin Cools.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
