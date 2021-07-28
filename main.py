@@ -1,10 +1,13 @@
 import streamlit as st
 from helper_functions import search_multiple_tracks, radar_chart, load_data_csv, load_data_sql, authenticate_spotify_api, authenticate_extract_lyrics, download_nltk
 from recommender import recommender
-import mysql.connector as mysql
 
 def main():
+    """ 
+    Streamlit frontend.
     
+    Run "streamlit run main.py" in terminal to locally run this application.
+    """
     # Set the streamlit page configuration
     st.set_page_config(layout="wide", initial_sidebar_state='collapsed')
     

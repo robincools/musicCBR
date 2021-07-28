@@ -11,27 +11,25 @@ class recommender:
   """
   A class to make song recommendations based on Spotify audio features and song lyrics.
   
-  Parameters
-  ----------
-  track_id : str
-    Spotify track ID of the track we want to make recommendations for.
-  database : DataFrame
-    Pandas dataframe with spotify ID's, audio features and lyrics of the tracks to make recommendations with.
-  lookup_table : DataFrame
-    Pandas dataframe with Spotify ID's and track names and artists.
-  do_kmeans : boolean
-    True if we want to do kmeans before recommendation.
-  n_songs : int
-    Number of songs to recommend.
-  alpha: float
-    Number between 0 and 1 to weigh the lyrics recommendation to the feature recommendation.
+  :type track_id: str
+  :param track_id: Spotify track ID of the track we want to make recommendations for.
+    
+  :type database: DataFrame
+  :param database: Pandas dataframe with spotify ID's, audio features and lyrics of the tracks to make recommendations with.
+    
+  :type lookup_table: DataFrame
+  :param lookup_table: Pandas dataframe with Spotify ID's and track names and artists.
+    
+  :type n_songs: int
+  :param n_songs: Number of songs to recommend.
+    
+  :type alpha: float
+  :param alpha: Number between 0 and 1 to weigh the lyrics recommendation to the feature recommendation.
     
   Methods
   -------
   find_song()
     Returns the audio features from the Spotify-API and the lyrics scraped with the Lyrics-extractor package.
-  kmeans_cluster(song)
-    Kmeans-cluster audio features
   recommender_features(song, database)
     Calculate cosine similarities between the audio features of the song and the audio features of the songs in the database.
   recommender_lyrics(song, dataset)
@@ -42,18 +40,20 @@ class recommender:
   
   def __init__(self, track_id, database, lookup_table,  n_songs , alpha, sp, extract_lyrics):
     """
-    Parameters
-    ----------
-    track_id : str
-      Spotify track ID of the track we want to make recommendations for.
-    database : DataFrame
-      Pandas dataframe with spotify ID's, audio features and lyrics of the tracks to make recommendations with.
-    lookup_table : DataFrame
-      Pandas dataframe with Spotify ID's and track names and artists.
-    n_songs : int
-      Number of songs to recommend.
-    alpha: float
-      Number between 0 and 1 to weigh the lyrics recommendation to the feature recommendation.
+    :type track_id: str
+    :param track_id: Spotify track ID of the track we want to make recommendations for.
+      
+    :type database: DataFrame
+    :param database: Pandas dataframe with spotify ID's, audio features and lyrics of the tracks to make recommendations with.
+      
+    :type lookup_table: DataFrame
+    :param lookup_table: Pandas dataframe with Spotify ID's and track names and artists.
+      
+    :type n_songs: int
+    :param n_songs: Number of songs to recommend.
+      
+    :type alpha: float
+    :param alpha: Number between 0 and 1 to weigh the lyrics recommendation to the feature recommendation.
     """
     self.track_id = track_id
     self.database = database
@@ -70,6 +70,8 @@ class recommender:
     """
     This function returns the audio features from the Spotify-API and the lyrics scraped with the Lyrics-extractor package.
     This functions inputs the song name, artist and a database to check if the song is already in the database.
+    
+    :return: (Pandas DataFrame) Pandas DataFrame with Track ID, audio features and track ID
     """
   
     # Initialize dictionary to story song data
@@ -114,12 +116,13 @@ class recommender:
     This function calculates the cosine similarities based on the audio features. All features are normalized to values between zero and one.
     This function inputs the dataframe that the find_song function outputs and a database with songs.
     
-    Parameters
-    ----------
-    song : DataFrame
-      dataframe with id, audio features and lyrics of song
-    database : DataFrame
-      dataframe with id, audio features and lyrics of database of songs
+    :type song: DataFrame
+    :param song: Dataframe with id, audio features and lyrics of song.
+    
+    :type database: DataFrame
+    :param database: Dataframe with id, audio features and lyrics of database of songs.
+    
+    :return: (Pandas DataFrame) Pandas DataFrame with the ID's and cosine similarity scores (between song and tracks in database) of audio features of all tracks in database
     """
 
     # Check if song is in database, if not append database and song. If song is in database then find index of song.
@@ -148,13 +151,14 @@ class recommender:
     """
     This function calculates the cosine similarity between the vector embedding of the song lyrics and the vector embeddings of the database of lyrics.
     This function inputs the dataframe that the find_song function outputs and a database with songs.
+
+    :type song: DataFrame
+    :param song: Dataframe with id, audio features and lyrics of song.
     
-    Parameters
-    ----------
-    song : DataFrame
-      dataframe with id, audio features and lyrics of song
-    database : DataFrame
-      dataframe with id, audio features and lyrics of database of songs
+    :type database: DataFrame
+    :param database: Dataframe with id, audio features and lyrics of database of songs.
+    
+    :return: (Pandas DataFrame) Pandas DataFrame with the ID's and cosine similarity scores (between song and tracks in database) of lyrics embeddings of all tracks in database
     """
 
     # Load the Doc2Vec model trained on the database of songs
@@ -192,6 +196,8 @@ class recommender:
     This function inputs the name and the artist of the song, to get an dataframe with the audio features and lyrics of the song with the find_song function.
     This dataframe is then used to calculate the cosine-similarities between the song and the database with the recommender_features and recommender_lyrics functions.
     The recommendations are made by adding the similarity scores with a weighing constant alpha and sorting them. The songs with the n_songs highest similarities are given as recommendation.
+    
+    :return: (Pandas DataFrame) Pandas DataFrame of top n_songs recommendations. Columns: Track ID, Track name, similarity score, album image url's, Spotify track url's
     """
 
     # Get song dataframe to recommend on

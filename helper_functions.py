@@ -13,16 +13,19 @@ import mysql.connector as mysql
 @st.cache(allow_output_mutation=True)
 def authenticate_spotify_api(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET):
   """
-  Function to authenticate the Spotify API.
+  Function to authenticate the Spotify API with client credentials flow manager.
   
-  Parameters
-  ---------
-  SPOTIPY_CLIENT_ID : str
-    public Spotify API key
-  SPOTIPY_CLIENT_SECRET : str
-    private Spotify API key
-  SPOTIPY_REDIRECT_URI: link
-    Link to which Spotify API is set in Spotify Dashboard
+  :type SPOTIPY_CLIENT_ID: str
+  :param SPOTIPY_CLIENT_ID:  public Spotify API key
+  
+  :type SPOTIPY_CLIENT_SECRET: str
+  :param SPOTIPY_CLIENT_SECRET: private Spotify API key
+  
+  :type SPOTIPY_REDIRECT_URI: link
+  :param SPOTIPY_REDIRECT_URI: Link to which Spotify API is set in Spotify Dashboard
+  
+  :return: Spotify API client
+  
   """
   auth_manager = SpotifyClientCredentials(client_id = SPOTIPY_CLIENT_ID, 
                                           client_secret=SPOTIPY_CLIENT_SECRET)
@@ -34,12 +37,13 @@ def authenticate_extract_lyrics(GCS_API_KEY, GCS_ENGINE_ID):
   """
   Function to initialize the lyrics_extractor class and to authenticate the google custom search engine.
   
-  Parameters
-  ---------
-  GCS_API_KEY : str
-    Google cloud service API key
-  GCS_ENGINE_ID : str
-    Google custom search engine ID
+  :type GCS_API_KEY: str
+  :param GCS_API_KEY: Google cloud service API key
+  
+  :type GCS_ENGINE_ID: str
+  :param GCS_ENGINE_ID: Google custom search engine ID
+  
+  :return: Songlyrics object
   """
   
   # Initialize lyrics_extractor class
@@ -51,10 +55,13 @@ def search_multiple_tracks(search_query, sp):
 
   Parameters
   ----------
-  search_query : str
-    search query / search term
-  sp : object
-    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
+  :type search_query: str
+  :param search_quear: search query / search term
+  
+  :type sp: object
+  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
+  
+  :return: (dict) Dictionary with track names, artists and id's
   """
   
   # List to store the track ids
@@ -88,12 +95,13 @@ def get_img_urls(track_ids, sp):
   """
   Function to get the album image urls from tracks with the Spotify API, given a list of track id's.
 
-  Parameters
-  ----------
-  track_ids : list
-    Spotify track id's
-  sp : object
-    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
+  :type track_ids: list
+  :param track_ids: Spotify track id's
+  
+  :type sp: object
+  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
+  
+  :return: (href) URL's to album images from Spotify API
   """
   
   # Get a list with track information using a list of track id's
@@ -117,13 +125,13 @@ def radar_chart(song, dataset):
   """
   Function to make a radar chart of the audio features of a song.
 
-  Parameters
-  ----------
-  song : DataFrame
-    Pandas dataframe with the audio features of a song
+  :type song: DataFrame
+  :param song: Pandas dataframe with the audio features of a song
 
-  dataset : DataFrame
-    Pandas dataframe with the database of songs we use to make recommendations. Used for normalizing the audio features (tempo and loudness) of the song.
+  :type dataset: DataFrame
+  :param dataset: Pandas dataframe with the database of songs we use to make recommendations. Used for normalizing the audio features (tempo and loudness) of the song.
+  
+  :return: plotly-express radar chart figure
   """
   # Reset the index of the song dataframe
   song = song.reset_index(drop = True)
@@ -148,7 +156,9 @@ def radar_chart(song, dataset):
 @st.cache(allow_output_mutation=True)
 def load_data_csv():
   """
-  Create dataframes for the song data and the id lookup table from csv files
+  Create dataframes for the song data and the id lookup table from csv files.
+  
+  :return: (Pandas DataFrame) Pandas DataFrame of song data and lookup table
   """
   
   # Load lookup table
@@ -167,10 +177,10 @@ def load_data_sql():
   """
   Create dataframes for the song data and the id lookup table from sql tables
   
-  Parameters
-  ----------
-  conn : MySQL connection
-    connection to MySQL server
+  :type conn: MySQL connection
+  :param conn: connection to MySQL server
+  
+  :return: (Pandas DataFrame) Pandas DataFrame of song data and lookup table
   """ 
   conn = mysql.connect(**st.secrets["mysql"])
 
@@ -183,10 +193,10 @@ def clean_lyrics(data):
   """
   Function to clean the lyrics. It lowercases the lyrics, tokenizes it and removes all stopwords.
 
-  Parameters
-  ---------
-  data : list
-    list of strings of song lyrics
+  :type data: list
+  :param data:  list of strings of song lyrics
+  
+  :return: (list) list of tokenized and clean lyrics
   """
   
   #Initialize list to store clean data, tokenizer and the set of stopwords
@@ -212,7 +222,9 @@ def clean_lyrics(data):
 
 @st.cache()
 def download_nltk():
-  
+  """ 
+  Function to download the nltk stopwords, necessary for downloading them in deployed streamlit.
+  """
   nltk.download('stopwords')
   return
 
@@ -220,11 +232,10 @@ def tag_lyrics(data):
   """
   Function to tag every document. Needed as input for the Doc2Vec network.
 
-  Parameters
-  ----------
-
-  data : list
-    list of cleaned lyrics (output of the clean_lyrics function)
+  :type data: list
+  :param data: list of cleaned lyrics (output of the clean_lyrics function)
+  
+  :return: (list) list of tagged lyrics
   """
 
   # Initialize list to store tagged lyrics
@@ -244,17 +255,20 @@ def tag_lyrics(data):
 def create_playlist(user_id, sp, recommendations, name, description):
   """ 
   Function to create a playlist on the Spotify account of the authenticated user.
+
+  :type sp: object
+  :param sp: spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
   
-  Parameters
-  ----------
-  sp : object
-    spotipy.Spotify object initialized and authenticated with authenticate_spotify_api()
-  recommendations: DataFrame
-    DataFrame of recommendations, output of recommender.content_based_recommender().
-  name : str
-    Name of the playlist.
-  description : str
-    Description of the playlist.
+  :type recommendations: DataFrame
+  :param recommendations: DataFrame of recommendations, output of recommender.content_based_recommender().
+  
+  :type name: str
+  :param name: Name of the playlist.
+  
+  :type description: str
+  :param description: Description of the playlist.
+  
+  :return: (str) succes/error message
   """
   
   # Get current user ID
