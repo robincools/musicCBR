@@ -24,10 +24,11 @@ def main():
     # Title
     st.title("**Spotify Recommendation system**")
 
-    # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made, load from csv file.
+    # Load the song data and id lookup_table from sql server. If connection to sql-server can't be made (server won't be online forever), load from csv file.
     try:
         data, lookup_table = load_data_sql()
     except:
+        print('Could not connect to SQL-server, loading data from csv file instead.')
         data, lookup_table = load_data_csv()
     
 

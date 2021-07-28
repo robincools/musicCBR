@@ -76,10 +76,11 @@ The documentation can be found vie this [link](https://musiccbr.readthedocs.io/e
 * main.py: streamlit frontend
 * recommender.py: class to make recommendations
 * helper_functions.py: extra functions needed to make the application work
+* train_model: function to train the model on new dataset and save the new model
 * Jupyter notebooks:
     * create_sql_tables.ipynb: add csv-data-files to MySQL database
     * Capstone_CBF_lyrics_data.ipynb: notebook to do data wrangling
-    * doc2vec_train.ipynb: notebook to retrain Doc2Vec model
+    * Loudness_linear.ipynb: notebook to research the influence of the logaritmic nature of dB on the loudness audio features
 * data/: csv-files containing the wrangled data and the id-lookup table
 * datasets_raw/: unwrangled datasets
 * model/: model-files of the trained Doc2Vec model
